@@ -275,12 +275,13 @@ class CartPage extends StatelessWidget {
                           removeFromCart(cartItems[index]);
                         },
                       ),
+                      
                       IconButton(
                         icon: Icon(Icons.add),
                         onPressed: () {
                           cartItems[index].quantity++;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${cartItems[index].name} quantity updated in cart')),
+                            SnackBar(content: Text('${cartItems[index].name} Quantity updated in cart')),
                           );
                         },
                       ),

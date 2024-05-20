@@ -18,21 +18,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final List<Item> allItems = [
-    Item(price: 60, name: "cccc", imgPath: "assets/images/sh1.png"),
-    Item(price: 50, name: "Pfff", imgPath: "assets/images/sh2.png"),
-    Item(price: 70, name: "Pdgf", imgPath: "assets/images/sh3.png"),
-    Item(price: 80, name: "gss", imgPath: "assets/images/sh4.png"),
-    Item(price: 90, name: "teee", imgPath: "assets/images/sh5.png"),
-    Item(price: 75, name: "iiig", imgPath: "assets/images/sh6.png"),
-    Item(price: 65, name: "fddd", imgPath: "assets/images/sh7.png"),
-    Item(price: 55, name: "uff", imgPath: "assets/images/sh8.png"),
-    Item(price: 55, name: "hnnuff", imgPath: "assets/images/sh8.png"),
+    Item(price: 60, name: "Canalis Ksa 100A", imgPath: "assets/images/A2.png"),
+    Item(price: 50, name: "Canalis Ksa 250A", imgPath: "assets/images/A1.png"),
+    Item(price: 70, name: "Canalis KSA 400A", imgPath: "assets/images/A1.png"),
+    Item(price: 80, name: "Canalis KN 160A", imgPath: "assets/images/A3.png"),
+    Item(price: 90, name: "Altivar Process ATV600", imgPath: "assets/images/A4.png"),
+    Item(price: 75, name: "Rotating 127V", imgPath: "assets/images/A5.png"),
+    Item(price: 65, name: "Easy Harmony XA2", imgPath: "assets/images/A6.png"),
+    Item(price: 55, name: "9001K", imgPath: "assets/images/A7.png"),
+    Item(price: 55, name: "TeSys F", imgPath: "assets/images/B1.png"),
+    Item(price: 55, name: "Ikeos", imgPath: "assets/images/B2.png"),
+    Item(price: 55, name: "TeSys LUTM", imgPath: "assets/images/B3.png"),
+    Item(price: 55, name: "TeSys B", imgPath: "assets/images/B4.png"),
+    Item(price: 55, name: "AccuSine PCS+", imgPath: "assets/images/B5.png"),
   ];
 
   List<Item> displayedItems = [];
   List<Item> cartItems = [];
 
   TextEditingController searchController = TextEditingController();
+  int cartItemCount = 0;
 
   @override
   void initState() {
@@ -59,6 +64,7 @@ class _HomeState extends State<Home> {
     if (!alreadyInCart) {
       setState(() {
         cartItems.add(item);
+        cartItemCount++;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${item.name} added to cart')),
@@ -84,11 +90,20 @@ class _HomeState extends State<Home> {
     } else {
       setState(() {
         cartItems.remove(item);
+        cartItemCount--;
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${item.name} removed from cart')),
       );
     }
+  }
+
+  double calculateTotalPriceAll() {
+    double total = 0;
+    for (var item in allItems) {
+      total += item.price;
+    }
+    return total;
   }
 
   @override
@@ -97,14 +112,57 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("Home"),
         actions: [
-          IconButton(
+          Stack(
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CartPage(cartItems: cartItems, removeFromCart: removeFromCart)),
+                  );
+                },
+                icon: Icon(Icons.shopping_cart),
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                  ),
+                  child: Text(
+                    cartItemCount.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CartPage(cartItems: cartItems, removeFromCart: removeFromCart)),
+              double totalAll = calculateTotalPriceAll();
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Total Price"),
+                    content: Text("Total Price of all items: \$${totalAll.toStringAsFixed(2)}"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                },
               );
             },
-            icon: Icon(Icons.shopping_cart),
+            child: Text("Total"),
           ),
         ],
       ),
@@ -203,16 +261,23 @@ class _HomeState extends State<Home> {
                     addToCart(displayedItems[index]);
                   },
                   child: Card(
-                    elevation: 3,
+                    elevation: 8,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: AssetImage(displayedItems[index].imgPath),
+                        Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(color: Colors.black45, blurRadius: 8),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundImage: AssetImage(displayedItems[index].imgPath),
+                          ),
                         ),
                         SizedBox(height: 8),
                         Text(
@@ -236,53 +301,68 @@ class _HomeState extends State<Home> {
   }
 }
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   final List<Item> cartItems;
   final Function(Item) removeFromCart;
 
   const CartPage({Key? key, required this.cartItems, required this.removeFromCart}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    double totalPrice = 0;
-    for (var item in cartItems) {
+  _CartPageState createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  double totalPrice = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    calculateTotalPrice();
+  }
+
+  void calculateTotalPrice() {
+    totalPrice = 0;
+    for (var item in widget.cartItems) {
       totalPrice += item.price * item.quantity;
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Cart"),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: cartItems.length,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: widget.cartItems.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage(cartItems[index].imgPath),
+                    backgroundImage: AssetImage(widget.cartItems[index].imgPath),
                   ),
-                  title: Text(cartItems[index].name),
-                  subtitle: Text("\$${cartItems[index].price.toStringAsFixed(2)} x ${cartItems[index].quantity}"),
+                  title: Text(widget.cartItems[index].name),
+                  subtitle: Text("\$${widget.cartItems[index].price.toStringAsFixed(2)} x ${widget.cartItems[index].quantity}"),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: Icon(Icons.remove),
                         onPressed: () {
-                          removeFromCart(cartItems[index]);
+                          widget.removeFromCart(widget.cartItems[index]);
+                          setState(() {});
                         },
                       ),
-                      
+                      Text(widget.cartItems[index].quantity.toString()),
                       IconButton(
                         icon: Icon(Icons.add),
                         onPressed: () {
-                          cartItems[index].quantity++;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${cartItems[index].name} Quantity updated in cart')),
-                          );
+                          setState(() {
+                            widget.cartItems[index].quantity++;
+                            calculateTotalPrice();
+                          });
                         },
                       ),
                     ],
@@ -290,31 +370,31 @@ class CartPage extends StatelessWidget {
                 );
               },
             ),
-            BottomAppBar(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Total: \$${totalPrice.toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => PaymentPage(cartItems: cartItems)),
-                        );
-                      },
-                      child: Text('Checkout'),
-                    ),
-                  ],
-                ),
+          ),
+          BottomAppBar(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total: \$${totalPrice.toStringAsFixed(2)}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PaymentPage(cartItems: widget.cartItems)),
+                      );
+                    },
+                    child: Text('Checkout'),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -400,13 +480,8 @@ class _PaymentPageState extends State<PaymentPage> {
             ),
             TextFormField(
               controller: billingAddressController,
-              decoration: InputDecoration(labelText: 'Billing Address '),
+              decoration: InputDecoration(labelText: 'Billing Address'),
             ),
-              TextFormField(
-              controller: cardNumberController,
-              decoration: InputDecoration(labelText: 'Phone Number '),
-            ),
-            
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -427,7 +502,18 @@ void main() {
   runApp(MaterialApp(
     home: Home(),
   ));
-} 
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

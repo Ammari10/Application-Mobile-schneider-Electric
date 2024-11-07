@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app1/pages/login.dart';
 import 'package:flutter_app1/pages/shared/Colors.dart';
-import 'package:flutter_app1/pages/shared/Contants.dart';
+import 'package:flutter_app1/pages/shared/Contants.dart';  
 
 class registre extends StatelessWidget {
   const registre({Key? key}) : super(key: key);

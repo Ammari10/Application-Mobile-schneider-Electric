@@ -13,4 +13,4 @@ Technologies Utilisées
 Framework : Flutter (Dart)
 Backend : Firebase / REST API
 Base de Données : Cloud Firestore
-Autres : Git, CI/CD (selon votre configuration DevOps) 
+Autres : Git, CI/CD (selon votre configuration DevOps)  ggg
